@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<install version="1.5" type="plugin" group="vmpayment" >
+    <name>VMPAYMENT_PAYSONDIRECT</name>
+    <creationDate>Okt 03 2012</creationDate>
+    <author>Payson AB</author>
+    <authorUrl>http://www.payson.se</authorUrl>
+    <copyright></copyright>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+    <version>1.0</version>
+    <description>Paysondirect payment plugin</description>
+    <languages folder="language">
+	<language tag="en-GB">en-GB/en-GB.plg_vmpayment_paysondirect.ini</language>
+	<language tag="en-GB">en-GB/en-GB.plg_vmpayment_paysondirect.sys.ini</language>
+    </languages>
+    <files>
+	<filename plugin="paysondirect">paysondirect.php</filename>
+	<folder>payson</folder>
+    </files>
+    <params addpath="/administrator/components/com_virtuemart/elements">
+	<param type="vmjpluginwarning" />
+	
+	<param name="seller_email" type="text" size="50" label="VMPAYMENT_PAYSONDIRECT_SELLERMAIL" description="VMPAYMENT_PAYSONDIRECT_SELLERMAIL_EXPLAIN" />
+	<param name="agent_id" type="text" size="50" label="VMPAYMENT_PAYSONDIRECT_AGENT_ID" description="VMPAYMENT_PAYSONDIRECT_AGENT_ID_EXPLAIN" />
+	<param name="md5_key" type="text" size="50" label="VMPAYMENT_PAYSONDIRECT_MD5KEY" description="VMPAYMENT_PAYSONDIRECT_MD5KEY_EXPLAIN" />
+
+	<param name="paymentmethod" type="radio" default="ALL" label="VMPAYMENT_PAYSONDIRECT_PAYMENTMETHOD" description="VMPAYMENT_PAYSONDIRECT_PAYMENTMETHOD_EXPLAIN">
+			<option value="ALL">VMPAYMENT_PAYSONDIRECT_CARD_BANK</option>
+			<option value="CREDITCARD">VMPAYMENT_PAYSONDIRECT_CARD</option>
+			<option value="BANK">VMPAYMENT_PAYSONDIRECT_BANK</option>
+	</param>
+	<param name="secure_word" type="text" label="VMPAYMENT_PAYSONDIRECT_SECURE_WORD" description="VMPAYMENT_PAYSONDIRECT_SECURE_WORD_EXPLAIN" />
+	
+	<param name="payment_approved_status" type="vmorderstate" scope="com_virtuemart" default="C" label="VMPAYMENT_PAYSONDIRECT_ORDERSTATUS_SUCCESS" description="VMPAYMENT_PAYSONDIRECT_ORDERSTATUS_SUCCESS_EXPLAIN" />
+	<param name="payment_declined_status" type="vmorderstate" scope="com_virtuemart" default="X" label="VMPAYMENT_PAYSONDIRECT_ORDERSTATUS_FAIL" description="VMPAYMENT_PAYSONDIRECT_ORDERSTATUS_FAIL_EXPLAIN" />
+
+	<param name="logg" type="radio" default="0" label="VMPAYMENT_PAYSONDIRECT_LOGG" description="VMPAYMENT_PAYSONDIRECT_LOGG_EXPLAIN" >
+		<option value="0">No</option>
+		<option value="1">Yes</option>
+	</param>
+	<param	name="payment_logos" type="vmfiles" label="VMPAYMENT_PAYSONDIRECT_LOGOS"
+			description="VMPAYMENT_PAYSONDIRECT_LOGOS_EXPLAIN"
+			directory="/images/stories/virtuemart/payment"
+			default="systempay.jpg" hide_default="1" hide_none="1"
+			stripext="0" exclude="^_" />
+
+
+
+	<param name="countries" type="vmcountries"  scope="com_virtuemart" default="" label="VMPAYMENT_PAYSONDIRECT_COUNTRIES" description="VMPAYMENT_PAYSONDIRECT_COUNTRIES_EXPLAIN"/>
+
+	<param name="min_amount" type="text"  label="VMPAYMENT_PAYSONDIRECT_MIN_AMOUNT" description="VMPAYMENT_PAYSONDIRECT_MIN_AMOUNT_EXPLAIN" />
+	<param name="max_amount" type="text"  label="VMPAYMENT_PAYSONDIRECT_MAX_AMOUNT" description="VMPAYMENT_PAYSONDIRECT_MAX_AMOUNT_EXPLAIN" />
+	<param name="cost_per_transaction" type="text"  label="VMPAYMENT_PAYSONDIRECT_COST_PER_TRANSACTION" description="VMPAYMENT_PAYSONDIRECT_COST_PER_TRANSACTION_EXPLAIN" />
+	<param name="cost_percent_total" type="text"  label="VMPAYMENT_PAYSONDIRECT_COST_PERCENT_TOTAL" description="VMPAYMENT_PAYSONDIRECT_COST_PERCENT_TOTAL_EXPLAIN" />
+	<param name="tax_id" type="vmtaxes" scope="com_virtuemart"  label="VMPAYMENT_PAYSONDIRECT_TAX" description="VMPAYMENT_PAYSONDIRECT_TAX_EXPLAIN" />
+	<param name="payment_info" type="textarea" cols="60" rows="30" default="add a message to display with the order" label="VMPAYMENT_PAYSONDIRECT_PAYMENTINFO" description="VMPAYMENT_PAYSONDIRECT_PAYMENTINFO_EXPLAIN" />
+    </params>
+
+
+
+</install>

@@ -1,0 +1,89 @@
+SUPPORT: 
+
+* Joomla 2.5
+* VirtueMart 2
+
+
+REQUIREMENTS:
+
+* Curl
+
+
+INSTALLATION: 
+
+* You should have a BACKUP of your web store and database. 
+
+* Download the module “payson_1.1_for_virtuemart_2” on your PC.
+
+* extract only the the folder payson_1.1_for_virtuemart_2 
+
+* Log into your web shop Administration Panel
+
+* Go to Extensions->Extensions Manager and upload the package file 'paysondirect.zip' and click 'Upload & Install'. 
+
+* Go to Extensions->Extensions Manager and upload the package file 'paysoninvoice.zip' and click 'Upload & Install'. 
+
+* Go to Extensions->Plug-in Manager  and enable the Vm Payment plugin Paysondirect
+
+* Go to Extensions->Plug-in Manager  and enable the Vm Payment plugin Paysoninvoice
+
+
+UPGRADIETION:
+
+* Login into your web shop Administration Panel.
+
+* Go to Components->VirtueMart->Payment Methods->  Paysondirect/Paysoninvoice and click Unpuglish.
+
+* Go to Components->VirtueMart->Payment Methods-> Paysondirect/Paysoninvoice and click Delete.
+
+* Go to Extensions->Plug-in Manager  and Disable the Vm Payment plugin Paysondirect
+
+* Go to Extensions->Plug-in Manager  and Disable the Vm Payment plugin Paysoninvoice
+
+* Go to Extensions->Extensions Manager and Install Vm Payment plugin Paysondirect. 
+
+* Go to Extensions->Extensions Manager and Vm Payment plugin paysoninvoice.
+
+* Go to INSTALLATION in this this document.
+
+
+CONFIGURATION
+
+* Login into your web shop Administration Panel.
+
+* Go to Components->VirtueMart->Payment Methods->  and click New.
+
+
+ CREDICARD/BANK
+
+  * Click Payment Method Information
+
+	* Enter Payment Name: 'Payson Direct', Published: Yes, Payment Method: Vm Payment plugin Paysondirect.
+
+	* Click Save.
+
+  * Click Configuration
+
+	* Enter your Email, Agent ID,  MD5 Key, Payment method and secure word.
+
+	* Click Save.
+
+
+ INVOICE
+
+  * Click Payment Method Information
+
+	* Enter Payment Name: 'Payson Invoice', Published: Yes, Payment Method: Vm Payment plugin Paysoninvoice.
+
+	* Click Save.
+
+  * Click Configuration
+
+	* Enter your Email, Agent ID,  MD5 Key, invoice fee (Fee per transaction) and secure word .
+
+	* Click Save.
+
+
+
+
+
