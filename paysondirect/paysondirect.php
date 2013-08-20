@@ -76,14 +76,12 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
 		$vendorId = 0;
 		$langCode = explode('-', $lang->get('tag'));		
 		
-		$currencyModel = VmModel::getModel('Currency');
-		$currencyToPayson = $currencyModel->getCurrency($order['details']['BT']->user_currency_id);		
-
-		//$amount = $order['details']['BT']->order_total;
+		$currencyModel = VmModel::getModel('Currency');                              
+                $currencyToPayson = $currencyModel->getCurrency($cart->pricesCurrency);
 		$user_billing_info = $order['details']['BT'];
 		$user_shipping_info = ((isset($order['details']['ST'])) ? $order['details']['ST'] : $order['details']['BT']);
 		$paymentCurrency = CurrencyDisplay::getInstance ();
-		$totalInPaymentCurrency = round ($paymentCurrency->convertCurrencyTo ($order['details']['BT']->user_currency_id, $order['details']['BT']->order_total, FALSE), 2);
+		$totalInPaymentCurrency = round ($paymentCurrency->convertCurrencyTo ($cart->pricesCurrency, $order['details']['BT']->order_total, FALSE), 2);
 		
 		$ipn_url  		= JROUTE::_ (JURI::root () . 'index.php?option=com_virtuemart&view=pluginresponse&task=pluginnotification&on=' .$order['details']['BT']->virtuemart_order_id .
 			                        				'&pm=' .$order['details']['BT']->virtuemart_paymentmethod_id);                      
@@ -182,12 +180,10 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
 				$countries = $method->countries;
 			}
 		}
-        //Support only SEK and EUR
-		if($cart->pricesCurrency == 124) {
-			return true;
-		}
-		elseif($cart->pricesCurrency == 47) {
-			return true;
+                //Support only SEK and EUR
+                $paymentCurrency = CurrencyDisplay::getInstance ();
+		if (strtoupper($paymentCurrency->ensureUsingCurrencyCode($cart->pricesCurrency)) == 'SEK' || strtoupper($paymentCurrency->ensureUsingCurrencyCode($cart->pricesCurrency)) == 'EUR') {
+                        return true;
 		}else 
 			return false;
 		// probably did not gave his BT:ST address
