@@ -75,14 +75,13 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 		$lang->load($filename, JPATH_ADMINISTRATOR);
 		$vendorId = 0;
 		$langCode = explode('-', $lang->get('tag'));		
-		
+	
 		$currencyModel = VmModel::getModel('Currency');
-		$currencyToPayson = $currencyModel->getCurrency($order['details']['BT']->user_currency_id);		
-		
+                $currencyToPayson = $currencyModel->getCurrency($cart->pricesCurrency);
 		$user_billing_info = $order['details']['BT'];
 		$user_shipping_info = ((isset($order['details']['ST'])) ? $order['details']['ST'] : $order['details']['BT']);
 		$paymentCurrency = CurrencyDisplay::getInstance ();
-		$totalInPaymentCurrency = round ($paymentCurrency->convertCurrencyTo ($order['details']['BT']->user_currency_id, $order['details']['BT']->order_total, FALSE), 6);
+		$totalInPaymentCurrency = round ($paymentCurrency->convertCurrencyTo ($cart->pricesCurrency, $order['details']['BT']->order_total, FALSE), 6);
 			
 		$ipn_url  		= JROUTE::_ (JURI::root () . 'index.php?option=com_virtuemart&view=pluginresponse&task=pluginnotification&on=' .$order['details']['BT']->virtuemart_order_id .
 			                        				'&pm=' .$order['details']['BT']->virtuemart_paymentmethod_id);                      
@@ -193,8 +192,9 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 				$countries = $method->countries;
 			}
 		}
+                $paymentCurrency = CurrencyDisplay::getInstance ();
 		//Support only SEK 
-		if ($cart->pricesCurrency != 124) {
+		if (strtoupper($paymentCurrency->ensureUsingCurrencyCode($cart->pricesCurrency)) != 'SEK') {
 			return false;
 		}
 
@@ -314,19 +314,19 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 		
 		$credentials = new PaysonCredentials(trim($method->agent_id), trim($method->md5_key));
 		$api = new PaysonApi($credentials);
-	
+              
 		$receiver = new Receiver(trim($method->seller_email), $amount);
 		$receivers = array($receiver);
-		
+                
 		$sender = new Sender($user_billing_info->email, $user_billing_info->first_name, $user_billing_info->last_name);
 		$payData = new PayData($return_url, $cancel_url, $ipn_url, (isset(VmModel::getModel ('vendor')->getVendor()->vendor_store_name) != null && strlen(VmModel::getModel ('vendor')->getVendor()->vendor_store_name) <= 110  ? VmModel::getModel ('vendor')->getVendor()->vendor_store_name : JURI::root ()).' Order: '. $virtuemart_order_id, $sender, $receivers); 
 		$payData->setCurrencyCode($currency);
 		$payData->setLocaleCode($langCode);
-				
+
 		$payData->setOrderItems($orderItems);
 		$constraints = array('INVOICE');
 		$payData->setFeesPayer('PRIMARYRECEIVER');
-		
+                
 		$payData->setFundingConstraints($constraints);
 		$payData->setGuaranteeOffered('NO');
 		
@@ -419,20 +419,26 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 	}
 	
 	function setOrderItems($cart, $order){
-		require_once (JPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'paysondirect' . DS . 'payson' . DS . 'paysonapi.php');
-
+		require_once (JPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'paysondirect' . DS . 'payson' . DS . 'paysonapi.php');               
+                $paymentCurrency = CurrencyDisplay::getInstance ();		
 		$orderItems = array();
-
+         
 		foreach ($cart->products as $key => $product) {
-					  $orderItems[] = new OrderItem(substr(strip_tags($product->product_name), 0, 127), $product->product_price, $product->quantity, $cart->pricesUnformatted[$product->virtuemart_product_id]['Tax'][0][1]/100, $product->virtuemart_product_id);
-		}
+                    $orderItems[] = new OrderItem(  
+                                        substr(strip_tags($product->product_name), 0, 127), 
+                                        strtoupper($paymentCurrency->ensureUsingCurrencyCode($product->product_currency)) != 'SEK' ? $paymentCurrency->convertCurrencyTo ($paymentCurrency->getCurrencyIdByField('SEK') , $cart->pricesUnformatted[$product->virtuemart_product_id]['basePrice'], FALSE) : $cart->pricesUnformatted[$product->virtuemart_product_id]['costPrice'], 
+                                        $product->quantity, $cart->pricesUnformatted[$product->virtuemart_product_id]['VatTax'][1][1]/100,  
+                                        $product->product_sku
+                            );                     
+                }
+              
 		if($order['details']['BT']->order_shipment >> 0){
 			$shipment_tax = (100 * $order['details']['BT']->order_shipment_tax) / $order['details']['BT']->order_shipment;	
-			$orderItems[] = new OrderItem('Frakt', $order['details']['BT']->order_shipment, 1, $shipment_tax/100, 9998);
+			$orderItems[] = new OrderItem('Frakt', $paymentCurrency->convertCurrencyTo ($cart->pricesCurrency, $order['details']['BT']->order_shipment, FALSE), 1, $shipment_tax/100, 9998);
 		}
 		if($order['details']['BT']->order_payment >> 0){
 			$invoiceFee = (100 * $order['details']['BT']->order_payment_tax) / $order['details']['BT']->order_payment;	
-			$orderItems[] = new OrderItem('Faktura', $order['details']['BT']->order_payment, 1, $invoiceFee/100, 9999);
+			$orderItems[] = new OrderItem('Faktura', $paymentCurrency->convertCurrencyTo ($cart->pricesCurrency, $order['details']['BT']->order_payment, FALSE), 1, $invoiceFee/100, 9999);
 		}
 		return $orderItems;	
 	}
