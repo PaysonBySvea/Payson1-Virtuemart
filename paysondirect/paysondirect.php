@@ -316,7 +316,7 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
 	function paysonApi($method, $amount, $currency, $langCode, $user_billing_info, $user_shipping_info, $return_url, $ipn_url, $cancel_url, $virtuemart_order_id){
 		require_once (JPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'paysondirect' . DS . 'payson' . DS . 'paysonapi.php');
 		
-		$credentials = new PaysonCredentials(trim($method->agent_id), trim($method->md5_key));
+		$credentials = new PaysonCredentials(trim($method->agent_id), trim($method->md5_key), null, 'payson_virtuemart|1.2_2.0|' . VmConfig::getInstalledVersion());                
 		$api = new PaysonApi($credentials);
 	
 		$receiver = new Receiver(trim($method->seller_email), $amount);
