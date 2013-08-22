@@ -18,7 +18,11 @@
     </files>
     <params addpath="/administrator/components/com_virtuemart/elements">
 	<param type="vmjpluginwarning" />
-	
+        <param name="sandbox" type="radio" default="0" label="VMPAYMENT_PAYSONDIRECT_SANDBOX" description="VMPAYMENT_PAYSONDIRECT_SANDBOX_EXPLAIN" >
+		<option value="0">Live</option>
+		<option value="1">Sandbox</option>
+	</param>
+              
 	<param name="seller_email" type="text" size="50" label="VMPAYMENT_PAYSONDIRECT_SELLERMAIL" description="VMPAYMENT_PAYSONDIRECT_SELLERMAIL_EXPLAIN" />
 	<param name="agent_id" type="text" size="50" label="VMPAYMENT_PAYSONDIRECT_AGENT_ID" description="VMPAYMENT_PAYSONDIRECT_AGENT_ID_EXPLAIN" />
 	<param name="md5_key" type="text" size="50" label="VMPAYMENT_PAYSONDIRECT_MD5KEY" description="VMPAYMENT_PAYSONDIRECT_MD5KEY_EXPLAIN" />
@@ -40,18 +44,15 @@
 	<param	name="payment_logos" type="vmfiles" label="VMPAYMENT_PAYSONDIRECT_LOGOS"
 			description="VMPAYMENT_PAYSONDIRECT_LOGOS_EXPLAIN"
 			directory="/images/stories/virtuemart/payment"
-			default="systempay.jpg" hide_default="1" hide_none="1"
+			default="payson.png" hide_default="1" hide_none="1"
 			stripext="0" exclude="^_" />
-
-
+        
+        
 
 	<param name="countries" type="vmcountries"  scope="com_virtuemart" default="" label="VMPAYMENT_PAYSONDIRECT_COUNTRIES" description="VMPAYMENT_PAYSONDIRECT_COUNTRIES_EXPLAIN"/>
 
 	<param name="min_amount" type="text"  label="VMPAYMENT_PAYSONDIRECT_MIN_AMOUNT" description="VMPAYMENT_PAYSONDIRECT_MIN_AMOUNT_EXPLAIN" />
 	<param name="max_amount" type="text"  label="VMPAYMENT_PAYSONDIRECT_MAX_AMOUNT" description="VMPAYMENT_PAYSONDIRECT_MAX_AMOUNT_EXPLAIN" />
-	<param name="cost_per_transaction" type="text"  label="VMPAYMENT_PAYSONDIRECT_COST_PER_TRANSACTION" description="VMPAYMENT_PAYSONDIRECT_COST_PER_TRANSACTION_EXPLAIN" />
-	<param name="cost_percent_total" type="text"  label="VMPAYMENT_PAYSONDIRECT_COST_PERCENT_TOTAL" description="VMPAYMENT_PAYSONDIRECT_COST_PERCENT_TOTAL_EXPLAIN" />
-	<param name="tax_id" type="vmtaxes" scope="com_virtuemart"  label="VMPAYMENT_PAYSONDIRECT_TAX" description="VMPAYMENT_PAYSONDIRECT_TAX_EXPLAIN" />
 	<param name="payment_info" type="textarea" cols="60" rows="30" default="add a message to display with the order" label="VMPAYMENT_PAYSONDIRECT_PAYMENTINFO" description="VMPAYMENT_PAYSONDIRECT_PAYMENTINFO_EXPLAIN" />
     </params>
 
