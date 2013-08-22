@@ -13,9 +13,13 @@ INSTALLATION:
 
 * You should have a BACKUP of your web store and database. 
 
-* Download the module “payson_1.1_for_virtuemart_2” on your PC.
+* Download the module “module-payson-virtuemart-master” on your PC.
 
-* extract only the the folder payson_1.1_for_virtuemart_2 
+* Extract the folder module-payson-virtuemart-master 
+
+* compress the contents of the catalog 'paysondirect' to another directory and name it to paysondirect.zip
+
+* compress the contents of the catalog 'paysoninvoice' to another directory and name it to paysoninvoice.zip
 
 * Log into your web shop Administration Panel
 
