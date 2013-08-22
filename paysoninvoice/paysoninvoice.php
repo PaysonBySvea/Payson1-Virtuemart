@@ -311,11 +311,17 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 	
 	function paysonApi($method, $amount, $currency, $langCode, $user_billing_info, $user_shipping_info, $return_url, $ipn_url, $cancel_url, $virtuemart_order_id, $orderItems, $invoice_fee){
 		require_once (JPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'paysondirect' . DS . 'payson' . DS . 'paysonapi.php');
-		
-		$credentials = new PaysonCredentials(trim($method->agent_id), trim($method->md5_key), null, 'payson_virtuemart|1.2_2.0|' . VmConfig::getInstalledVersion());
-		$api = new PaysonApi($credentials);
-              
-		$receiver = new Receiver(trim($method->seller_email), $amount);
+
+                if (!$method->sandbox) {
+                    $credentials = new PaysonCredentials(trim($method->agent_id), trim($method->md5_key), null, 'payson_virtuemart|1.2_2.0|' . VmConfig::getInstalledVersion()); 
+                    $api = new PaysonApi($credentials, $method->sandbox);
+                    $receiver = new Receiver(trim($method->seller_email), $amount);
+                } else {
+                    $credentials = new PaysonCredentials(1, 'fddb19ac-7470-42b6-a91d-072cb1495f0a', null, 'payson_virtuemart|1.2_2.0|' . VmConfig::getInstalledVersion());
+                    $api = new PaysonApi($credentials, $method->sandbox);
+                    $receiver = new Receiver('testagent-1@payson.se', $amount);
+               }
+                
 		$receivers = array($receiver);
                 
 		$sender = new Sender($user_billing_info->email, $user_billing_info->first_name, $user_billing_info->last_name);

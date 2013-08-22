@@ -17,7 +17,10 @@
     </files>
     <params addpath="/administrator/components/com_virtuemart/elements">
 	<param type="vmjpluginwarning" />
-	
+        <param name="sandbox" type="radio" default="0" label="VMPAYMENT_PAYSONINVOICE_SANDBOX" description="VMPAYMENT_PAYSONINVOICE_SANDBOX_EXPLAIN" >
+		<option value="0">Live</option>
+		<option value="1">Sandbox</option>
+	</param>	
 	<param name="seller_email" type="text" size="50" label="VMPAYMENT_PAYSONINVOICE_SELLERMAIL" description="VMPAYMENT_PAYSONINVOICE_SELLERMAIL_EXPLAIN" />
 	<param name="agent_id" type="text" size="50" label="VMPAYMENT_PAYSONINVOICE_AGENT_ID" description="VMPAYMENT_PAYSONINVOICE_AGENT_ID_EXPLAIN" />
 	<param name="md5_key" type="text" size="50" label="VMPAYMENT_PAYSONINVOICE_MD5KEY" description="VMPAYMENT_PAYSONINVOICE_MD5KEY_EXPLAIN" />
@@ -44,7 +47,6 @@
 	<param name="min_amount" type="text"  label="VMPAYMENT_PAYSONINVOICE_MIN_AMOUNT" description="VMPAYMENT_PAYSONINVOICE_MIN_AMOUNT_EXPLAIN" />
 	<param name="max_amount" type="text"  label="VMPAYMENT_PAYSONINVOICE_MAX_AMOUNT" description="VMPAYMENT_PAYSONINVOICE_MAX_AMOUNT_EXPLAIN" />
 	<param name="cost_per_transaction" type="text"  label="VMPAYMENT_PAYSONINVOICE_COST_PER_TRANSACTION" description="VMPAYMENT_PAYSONINVOICE_COST_PER_TRANSACTION_EXPLAIN" />
-	<param name="cost_percent_total" type="text"  label="VMPAYMENT_PAYSONINVOICE_COST_PERCENT_TOTAL" description="VMPAYMENT_PAYSONINVOICE_COST_PERCENT_TOTAL_EXPLAIN" />
 	<param name="tax_id" type="vmtaxes" scope="com_virtuemart"  label="VMPAYMENT_PAYSONINVOICE_TAX" description="VMPAYMENT_PAYSONINVOICE_TAX_EXPLAIN" />
 	<param name="payment_info" type="textarea" cols="60" rows="30" default="add a message to display with the order" label="VMPAYMENT_PAYSONINVOICE_PAYMENTINFO" description="VMPAYMENT_PAYSONINVOICE_PAYMENTINFO_EXPLAIN" />
 
