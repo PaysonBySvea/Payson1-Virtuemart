@@ -7,7 +7,8 @@ if (!class_exists('vmPSPlugin')) {
 }
 
 class plgVmPaymentPaysoninvoice extends vmPSPlugin {
-
+        public $module_vesion = '1.3_2.0';
+        
 	function __construct(& $subject, $config) {
 
 		parent::__construct($subject, $config);
@@ -283,26 +284,48 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 		if (!($method = $this->getVmPluginMethod ($virtuemart_paymentmethod_id))) {
 			return NULL; // Another method was selected, do nothing
 		}
-		
-		
-		
+	
 		if (!$this->selectedThisElement ($method->payment_element)) {
 			return FALSE;
 		}
-		
+                
+		// the payment itself should send the parameter needed.
+		$virtuemart_paymentmethod_id = JRequest::getInt ('pm', 0);
+		$order_number = JRequest::getString ('on', 0);
+              
+                
 		$this->myFile('plgVmOnPaymentResponseReceived - PaysonInvoice');
 		
  		$q  = 'SELECT * FROM `' . $this->_tablename . '` WHERE `token`="' . JRequest::getString ('TOKEN') . '" ';
 		$db = JFactory::getDBO();
 		$db->setQuery($q);
 		$sgroup = $db->loadAssoc();
-		if($sgroup['ipn_status'] == 'PENDING' && $sgroup['type'] == 'INVOICE' && $sgroup['invoice_status'] == 'ORDERCREATED'){
+                
+                $api = $this->getAPIInstance($method);
+                $paymentDetails = $api->paymentDetails(new PaymentDetailsData(JRequest::getString ('TOKEN') ))->getPaymentDetails();    
+                
+		if($paymentDetails->getStatus() == 'PENDING' && $paymentDetails->getType() == 'INVOICE' && $paymentDetails->getInvoiceStatus()== 'ORDERCREATED' && $order['order_status'] != $method->payment_approved_status){    
+                   $payment_name  = $this->renderPluginName ($method); 
+                   $modelOrder   = VmModel::getModel('orders');
+                   $order['order_status']      = $method->payment_approved_status;
+	           $order['customer_notified'] = 1;
+                   $order['comments']          = 'Paysons-ref: '.$paymentDetails->getPurchaseId();
+		   $modelOrder->updateStatusForOneOrder ($order_number, $order, TRUE);
+                   $cart = VirtueMartCart::getCart ();
+                   $cart->emptyCart ();
+		   return TRUE;
+
+		}elseif($paymentDetails->getStatus()== 'ERROR'){
 			$payment_name = $this->renderPluginName ($method);
-			$cart = VirtueMartCart::getCart ();
-			$cart->emptyCart ();
-			return TRUE;
+			$modelOrder                 = VmModel::getModel('orders');
+			$order['order_status']      = $method->payment_declined_status;
+			$order['customer_notified'] = 0;
+			$order['comments']          = 'Paysons-ref: '.$paymentDetails->getPurchaseId();
+			$modelOrder->updateStatusForOneOrder ($order_number, $order, FALSE); 
+                        $mainframe = JFactory::getApplication();
+			$mainframe->redirect(JRoute::_('index.php?option=com_virtuemart&view=cart'), $html);
 		}else {
-			$this->myFile('ipn - PaysonInvoice');
+			//$this->myFile('ipn - PaysonInvoice');
 			return FALSE;	
 		}
 	}
@@ -311,16 +334,14 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 	
 	function paysonApi($method, $amount, $currency, $langCode, $user_billing_info, $user_shipping_info, $return_url, $ipn_url, $cancel_url, $virtuemart_order_id, $orderItems, $invoice_fee){
 		require_once (JPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'paysondirect' . DS . 'payson' . DS . 'paysonapi.php');
-
-                if (!$method->sandbox) {
-                    $credentials = new PaysonCredentials(trim($method->agent_id), trim($method->md5_key), null, 'payson_virtuemart|1.2_2.0|' . VmConfig::getInstalledVersion()); 
-                    $api = new PaysonApi($credentials, $method->sandbox);
-                    $receiver = new Receiver(trim($method->seller_email), $amount);
-                } else {
-                    $credentials = new PaysonCredentials(1, 'fddb19ac-7470-42b6-a91d-072cb1495f0a', null, 'payson_virtuemart|1.2_2.0|' . VmConfig::getInstalledVersion());
-                    $api = new PaysonApi($credentials, $method->sandbox);
+                
+                $api = $this->getAPIInstance($method);
+            
+                if ($method->sandbox) {
                     $receiver = new Receiver('testagent-1@payson.se', $amount);
-               }
+                } else {
+                    $receiver = new Receiver(trim($method->seller_email), $amount);
+                }
                 
 		$receivers = array($receiver);
                 
@@ -398,11 +419,24 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 												WHERE  `virtuemart_order_id`   =".$order_number);
 					$database->query();						 
 					
-					$modelOrder                 = VmModel::getModel('orders');
-					$order['order_status']      = $method->payment_approved_status;
-					$order['customer_notified'] = 1;
-					$order['comments']          = 'Paysons-ref: '.$response->getPaymentDetails()->getPurchaseId();
-					$modelOrder->updateStatusForOneOrder ($salt[count($salt) - 1], $order, TRUE);
+                                        if($response->getPaymentDetails()->getStatus() == 'COMPLETED' && $response->getPaymentDetails()->getType() == 'TRANSFER' && $order['order_status'] != $method->payment_approved_status){
+                                                $payment_name               = $this->renderPluginName ($method);
+                                                $modelOrder                 = VmModel::getModel('orders');
+                                                $order['order_status']      = $method->payment_approved_status;
+                                                $order['customer_notified'] = 1;
+                                                $order['comments']          = 'Paysons-ref: '.$response->getPaymentDetails()->getPurchaseId();
+                                                $modelOrder->updateStatusForOneOrder ($salt[count($salt) - 1], $order, TRUE);
+                                                $cart = VirtueMartCart::getCart ();
+                                                $cart->emptyCart ();
+                                                return TRUE;
+                                        }if($paymentDetails->getStatus()== 'ERROR' && $paymentDetails->getType() == 'TRANSFER'){
+                                                $payment_name = $this->renderPluginName ($method);
+                                                $modelOrder                 = VmModel::getModel('orders');
+                                                $order['order_status']      = $method->payment_declined_status;
+                                                $order['customer_notified'] = 0;
+                                                $order['comments']          = 'Paysons-ref: '.$paymentDetails->getPurchaseId();
+                                                $modelOrder->updateStatusForOneOrder ($salt[count($salt) - 1], $order, FALSE);
+                                        }  
 				}
 				else{
 					if ($method->logg){ 
@@ -417,6 +451,21 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 		}
 	}
 	
+        public function getAPIInstance($method) {
+               require_once (JPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'paysondirect' . DS . 'payson' . DS . 'paysonapi.php');
+  
+		if ($method->sandbox) {
+                    $credentials = new PaysonCredentials(1, 'fddb19ac-7470-42b6-a91d-072cb1495f0a', null, 'payson_virtuemart|'.$this->module_vesion.'|' . VmConfig::getInstalledVersion());  
+                } else {
+                    $credentials = new PaysonCredentials(trim($method->agent_id), trim($method->md5_key), null, 'payson_virtuemart|'.$this->module_vesion.'|' . VmConfig::getInstalledVersion()); 
+                     
+               }
+               
+               $api = new PaysonApi($credentials, $method->sandbox);
+            
+               return $api;
+        }
+        
 	function plgVmOnUserPaymentCancel () {
 		if (!class_exists ('VirtueMartModelOrders')) {
 			require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'orders.php');
