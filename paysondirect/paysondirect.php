@@ -125,8 +125,7 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
 		$dbValues['payment_order_total']         = $totalInPaymentCurrency;
 		$dbValues['tax_id']                      = $method->tax_id;
 		$this->storePSPluginInternalData($dbValues);
-		
-		$this->myFile('plgVmConfirmedOrder - PaysonDirect');
+
 		$cart->_confirmDone = FALSE;
 		$cart->_dataValidated = FALSE;
 		$cart->setCartIntoSession ();
@@ -214,7 +213,7 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
 	}
 
 	public function plgVmOnSelectCheckPayment (VirtueMartCart $cart,  &$msg) {
-		//efter att man väljer payson hamnar man här
+		//efter att man vï¿½ljer payson hamnar man hï¿½r
 		return $this->OnSelectCheck($cart);
 	}
 
@@ -285,7 +284,6 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
 			return NULL;
 		}
 		
-		$this->myFile('plgVmOnPaymentResponseReceived - PaysonDirect');
 //#########
 //#############
  		$q  = 'SELECT * FROM `' . $this->_tablename . '` WHERE `token`="' . JRequest::getString ('TOKEN') . '" ';
@@ -347,16 +345,15 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
 		
 		$payData->setTrackingId(md5($method->secure_word).'1-'. $virtuemart_order_id);
 		$payResponse = $api->pay($payData);
-		if ($payResponse->getResponseEnvelope()->wasSuccessful())  //ack = SUCCESS och token  = token = Något
+		if ($payResponse->getResponseEnvelope()->wasSuccessful())  //ack = SUCCESS och token  = token = Nï¿½got
 		{   
 			//return the url: https://www.payson.se/paysecure/?token=#
-			$this->myFile('paysonApi - PaysonDirect');
 			header("Location: " . $api->getForwardPayUrl($payResponse));
 		}
 		else{
 			if($method->logg){
 			 	$error = $payResponse->getResponseEnvelope()->getErrors();
-			 	$this->myFile($error[0]->getErrorId(), $error[0]->getMessage().'  '.$error[0]->getParameter());
+			 	
 			}
 			 $mainframe = JFactory::getApplication();
 			 $mainframe->redirect(JRoute::_('index.php?option=com_virtuemart&view=cart'), $html);
@@ -366,7 +363,6 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
 		
 	function plgVmOnPaymentNotification() {
 		require_once (JPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'paysondirect' . DS . 'payson' . DS . 'paysonapi.php');
-		print_r(myFile('nada'));
 		$order_number = JRequest::getString ('on', 0);
 		$virtuemart_paymentmethod_id = JRequest::getInt ('pm', 0);
 		
@@ -379,15 +375,13 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
 		}
 
 		$postData = file_get_contents("php://input");
-                print_r(myFile($postData));
 		// Set up API
                 $api = $this->getAPIInstance($method);
                 
 		$response = $api->validate($postData);		
 		if($response->isVerified()){
 				$salt = explode("-", $response->getPaymentDetails()->getTrackingId());
-				if($salt[0] == (md5($method->secure_word).'1')){
-					$this->myFile('plgVmOnPaymentNotification - PaysonDirect');	
+				if($salt[0] == (md5($method->secure_word).'1')){	
 					$response->getPaymentDetails();
 					$database = JFactory::getDBO();
 					$database->setQuery( "UPDATE`" . $this->_tablename . "`SET 
@@ -420,16 +414,6 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
                                                 $modelOrder->updateStatusForOneOrder ($salt[count($salt) - 1], $order, FALSE);
                                         }      
 				}
-				else{
-					if ($method->logg){ 
-							$this->myFile('<Payson Direct ipn> The secure word from the Tracking is incorrect.');
-					}
-				}
-		}
-		else{
-			if ($method->logg){
-				$this->myFile('<Payson Direct ipn>The response could not validate.');
-			}
 		}
 	}
         
@@ -452,7 +436,6 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
 		if (!class_exists ('VirtueMartModelOrders')) {
 			require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'orders.php');
 		}
-		$this->myFile('plgVmOnUserPaymentCancel - PaysonDirect');
 	}
 	
 	public function languagePaysondirect($langCode){
@@ -475,18 +458,6 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
         }
 	}
 	
-	public function myFile($arg, $arg2 = NULL) {
-	    $myFile = "testFile.txt";
-	    if($myFile == NULL){
-	    	$myFile =  fopen($myFile, "w+");
-	    	fwrite($fh, "\r\n".date("Y-m-d H:i:s")."Radera mig när du vill");   
-	    }
-	    $fh = fopen($myFile, 'a') or die("can't open file");
-	    fwrite($fh, "\r\n".date("Y-m-d H:i:s")." **");
-	    fwrite($fh, $arg.'**');
-	    fwrite($fh, $arg2);
-	    fclose($fh);
-	}
 }
 
 // No closing tag

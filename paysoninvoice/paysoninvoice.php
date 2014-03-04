@@ -137,7 +137,6 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 			
 		$modelOrder->updateStatusForOneOrder($order['details']['BT']->virtuemart_order_id, $order, true);
 		
-		$this->myFile('plgVmConfirmedOrder - PaysonInvoice');
 		$cart->_confirmDone = FALSE;
 		$cart->_dataValidated = FALSE;
 		$cart->setCartIntoSession ();
@@ -291,10 +290,7 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
                 
 		// the payment itself should send the parameter needed.
 		$virtuemart_paymentmethod_id = JRequest::getInt ('pm', 0);
-		$order_number = JRequest::getString ('on', 0);
-              
-                
-		$this->myFile('plgVmOnPaymentResponseReceived - PaysonInvoice');
+		$order_number = JRequest::getString ('on', 0);                          
 		
  		$q  = 'SELECT * FROM `' . $this->_tablename . '` WHERE `token`="' . JRequest::getString ('TOKEN') . '" ';
 		$db = JFactory::getDBO();
@@ -325,7 +321,6 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
                         $mainframe = JFactory::getApplication();
 			$mainframe->redirect(JRoute::_('index.php?option=com_virtuemart&view=cart'), $html);
 		}else {
-			//$this->myFile('ipn - PaysonInvoice');
 			return FALSE;	
 		}
 	}
@@ -359,16 +354,14 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 		
 		$payData->setTrackingId(md5($method->secure_word).'1-'. $virtuemart_order_id);
 		$payResponse = $api->pay($payData);
-		if ($payResponse->getResponseEnvelope()->wasSuccessful())  //ack = SUCCESS och token  = token = Något
+		if ($payResponse->getResponseEnvelope()->wasSuccessful())  //ack = SUCCESS och token  = token = Nï¿½got
 		{   
 			//return the url: https://www.payson.se/paysecure/?token=#
-			$this->myFile('paysonApi - PaysonInvoice');
 			header("Location: " . $api->getForwardPayUrl($payResponse));
 		}
 		else{
 			if($method->logg){
 			 	$error = $payResponse->getResponseEnvelope()->getErrors();
-			 	$this->myFile($error[0]->getErrorId(), $error[0]->getMessage().'  '.$error[0]->getParameter());
 			}
 			 $mainframe = JFactory::getApplication();
 			 $mainframe->redirect(JRoute::_('index.php?option=com_virtuemart&view=cart'));
@@ -397,8 +390,7 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 		$response = $api->validate($postData);		
 		if($response->isVerified()){
 				$salt = explode("-", $response->getPaymentDetails()->getTrackingId());
-				if($salt[0] == (md5($method->secure_word).'1')){
-					$this->myFile('plgVmOnPaymentNotification - PaysonInvoice');
+				if($salt[0] == (md5($method->secure_word).'1')){					
 					$response->getPaymentDetails();
 					$database = JFactory::getDBO();
 					$database->setQuery( "UPDATE`" . $this->_tablename . "`SET 
@@ -438,17 +430,9 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
                                                 $modelOrder->updateStatusForOneOrder ($salt[count($salt) - 1], $order, FALSE);
                                         }  
 				}
-				else{
-					if ($method->logg){ 
-							$this->myFile('<Payson Invoice ipn> The secure word from the Tracking is incorrect.');
-					}
-				}
+			
 		}
-		else{
-			if ($method->logg){
-				$this->myFile('<Payson Invoice ipn>The response could not validate.');
-			}
-		}
+		
 	}
 	
         public function getAPIInstance($method) {
@@ -470,7 +454,6 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 		if (!class_exists ('VirtueMartModelOrders')) {
 			require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'orders.php');
 		}
-		$this->myFile('plgVmOnUserPaymentCancel - PaysonInvoice');
 	}
 	
 	function setOrderItems($cart, $order){
@@ -518,17 +501,6 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
         }
 	}
 	
-	public function myFile($arg, $arg2 = NULL) {
-	    $myFile = "testFile.txt";
-	    if($myFile == NULL){
-	    	$myFile =  fopen($myFile, "w+");   
-	    }
-	    $fh = fopen($myFile, 'a') or die("can't open file");
-	    fwrite($fh, "\r\n".date("Y-m-d H:i:s")." **");
-	    fwrite($fh, $arg.'**');
-	    fwrite($fh, $arg2);
-	    fclose($fh);
-	}
 }
 
 // No closing tag
