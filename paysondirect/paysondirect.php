@@ -7,7 +7,7 @@ if (!class_exists('vmPSPlugin')) {
 }
 
 class plgVmPaymentPaysondirect extends vmPSPlugin {
-    public $module_vesion = '1.3_2.0';
+    public $module_vesion = '1.4_2.0';
         
             	function __construct(& $subject, $config) {
 
@@ -151,15 +151,18 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
 		return $html;
 	}
 
-	function getCosts(VirtueMartCart $cart, $method, $cart_prices) {
-		if (preg_match('/%$/', $method->cost_percent_total)) {
-			$cost_percent_total = substr($method->cost_percent_total, 0, -1);
-		} else {
-			$cost_percent_total = $method->cost_percent_total;
-		}
-		
-		return ($method->cost_per_transaction + ($cart_prices['salesPrice'] * $cost_percent_total * 0.01));
-	}
+    function getCosts(VirtueMartCart $cart, $method, $cart_prices) {
+        if (isset($method->cost_percent_total) && ($method->cost_per_transaction) ) {
+
+            if (preg_match('/%$/', $method->cost_percent_total)) {
+                $cost_percent_total = substr($method->cost_percent_total, 0, -1);
+            } else {
+                $cost_percent_total = $method->cost_percent_total;
+            }
+        
+            return ($method->cost_per_transaction + ($cart_prices['salesPrice'] * $cost_percent_total * 0.01));
+            }
+    }
 
 	protected function checkConditions($cart, $method, $cart_prices) {
 		$this->convert($method);
