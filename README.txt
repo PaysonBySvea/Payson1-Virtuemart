@@ -6,6 +6,7 @@ Requirements:
 
 -------------------------------------- 
 2014-03-17
+
 * Temporary removal of our invoice module
 
 -------------------------------------- 
