@@ -5,6 +5,10 @@ Requirements:
 * Curl
 
 -------------------------------------- 
+2014-03-17
+* Temporary removal of our invoice module
+
+-------------------------------------- 
 2013-09-18 v1.3
 
 * Ipn request 
