@@ -4,6 +4,12 @@ Requirements:
 
 * Curl
 
+
+2014-05-27 v1.5
+
+* Relaunch of our invoice module
+* Improved our direct payment solution, with the ability to send order item details
+
 -------------------------------------- 
 2014-03-17
 

@@ -195,15 +195,17 @@ class PaysonApi {
      * @param  PayData $payData PayData-object set up with all necessary parameters
      * @return PayResponse
      */
+    
     public function pay($payData) {
         $input = $payData->getOutput();
+       
         $postData = NVPCodec::Encode($input);
-
+         
         $action = sprintf("/%s/%s/", self::PAYSON_API_VERSION, self::PAYSON_API_PAY_ACTION);
 
         $returnData = $this->doRequest($action, $this->credentials, $postData);
-
-        $decoded = NVPCodec::Decode($returnData);
+       // print_r(" Testing: ".$returnData." Testing ");
+       $decoded = NVPCodec::Decode($returnData);
 
         return new PayResponse($decoded);
     }
