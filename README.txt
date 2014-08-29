@@ -5,6 +5,11 @@ Requirements:
 * Curl
 
 
+2014-08-25 v1.6
+
+* Upgradation from VirtueMart 2.0 to VirtueMart 2.6.8
+
+-------------------------------------- 
 2014-05-27 v1.5
 
 * Relaunch of our invoice module
