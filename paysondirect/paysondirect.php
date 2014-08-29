@@ -8,7 +8,7 @@ if (!class_exists('vmPSPlugin')) {
 
 class plgVmPaymentPaysondirect extends vmPSPlugin {
 
-    public $module_vesion = '1.5';
+    public $module_vesion = '1.6';
 
     function __construct(& $subject, $config) {
 
@@ -269,6 +269,10 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
         if (!class_exists('VirtueMartModelOrders')) {
             require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'orders.php');
         }
+        
+        $virtuemart_paymentmethod_id = JRequest::getInt('pm', 0);
+        $order_number = JRequest::getString('on', 0);
+        
         // the payment itself should send the parameter needed.
         if (!($method = $this->getVmPluginMethod($virtuemart_paymentmethod_id))) {
             return NULL;
@@ -277,8 +281,7 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
         if (!$this->selectedThisElement($method->payment_element)) {
             return NULL;
         }
-        $virtuemart_paymentmethod_id = JRequest::getInt('pm', 0);
-        $order_number = JRequest::getString('on', 0);
+        
         $q = 'SELECT * FROM `' . $this->_tablename . '` WHERE `token`="' . JRequest::getString('TOKEN') . '" ';
         $db = JFactory::getDBO();
         $db->setQuery($q);
@@ -451,11 +454,11 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
             $i = 0;
             $orderItems[] = new OrderItem(
                     substr(strip_tags($product->product_name), 0, 127), strtoupper($paymentCurrency->ensureUsingCurrencyCode($product->product_currency)) != 'SEK' ? $paymentCurrency->convertCurrencyTo($paymentCurrency->getCurrencyIdByField('SEK'), 
-                            $cart->pricesUnformatted[$product->virtuemart_product_id]['basePrice'], FALSE) :
-                            $cart->pricesUnformatted[$product->virtuemart_product_id]['costPrice'], 
+                            $cart->pricesUnformatted[$key]['discountedPriceWithoutTax'], FALSE) :
+                            $cart->pricesUnformatted[$key]['discountedPriceWithoutTax'], 
                             $product->quantity, 
                             $this->getTaxRate($product->product_tax_id['VatTax']), 
-                            $product->product_sku
+                            $product->product_sku != Null ? $product->product_sku : 'Product sku'
             );
          
             $i++;

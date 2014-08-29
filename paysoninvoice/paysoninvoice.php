@@ -8,7 +8,7 @@ if (!class_exists('vmPSPlugin')) {
 
 class plgVmPaymentPaysoninvoice extends vmPSPlugin {
     
-    public $module_vesion = '1.5';
+    public $module_vesion = '1.6';
 
     function __construct(& $subject, $config) {
 
@@ -42,7 +42,6 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
             'payment_currency' => 'char(3)',
             'cost_per_transaction' => 'decimal(10,2)',
             'cost_percent_total' => 'decimal(10,2)',
-            'tax_id' => 'smallint(1)',
             'added' => 'datetime DEFAULT NULL',
             'updated' => 'datetime DEFAULT NULL',
             'valid' => 'tinyint(1) NOT NULL',
@@ -99,7 +98,7 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
         $cancel_url = JROUTE::_(JURI::root() . 'index.php?option=com_virtuemart&view=pluginresponse&task=pluginUserPaymentCancel&on=' . $order['details']['BT']->virtuemart_order_id);        
         $this->paysonApi(
                 $method, $totalInPaymentCurrency, $this->currencyPaysoninvoice($currencyToPayson->currency_code_3), $this->languagePaysoninvoice($langCode[0]), $user_billing_info, $user_shipping_info, $return_url, $ipn_url, $cancel_url, 
-                $order['details']['BT']->virtuemart_order_id, $this->setOrderItems($cart, $order), /* $shipment_info */  $order['details']['BT']->order_payment);
+                $order['details']['BT']->virtuemart_order_id, $this->setOrderItems($cart, $order), /* $shipment_info */  $order['details']['BT']->order_payment+$order['details']['BT']->order_payment_tax);
    
         if (!class_exists('VirtueMartModelOrders')) {
             require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'orders.php');
@@ -122,7 +121,7 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
         $dbValues['cost_percent_total'] = $method->cost_percent_total;
         $dbValues['payment_currency'] = $currency_code_3;
         $dbValues['payment_order_total'] = $totalInPaymentCurrency;
-        $dbValues['tax_id'] = $method->tax_id;
+        //$dbValues['tax_id'] = $method->tax_id;
         $this->storePSPluginInternalData($dbValues);
         $modelOrder = VmModel::getModel('orders');
         $order['order_status'] = 'P';
@@ -343,6 +342,7 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
         $payData->setOrderItems($orderItems);
         $constraints = array(FundingConstraint::INVOICE);
         $payData->setFeesPayer('PRIMARYRECEIVER');
+        $payData->setInvoiceFee($invoice_fee);
 
         $payData->setFundingConstraints($constraints);
         $payData->setGuaranteeOffered('NO');
@@ -468,11 +468,11 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
             $orderItems[] = new OrderItem(
                     substr(strip_tags($product->product_name), 0, 127), 
                     strtoupper($paymentCurrency->ensureUsingCurrencyCode($product->product_currency)) != 'SEK' ? $paymentCurrency->convertCurrencyTo($paymentCurrency->getCurrencyIdByField('SEK'), 
-                    $cart->pricesUnformatted[$product->virtuemart_product_id]['basePrice'], FALSE) : 
-                    $cart->pricesUnformatted[$product->virtuemart_product_id]['costPrice'], 
+                    $cart->pricesUnformatted[$key]['discountedPriceWithoutTax'], FALSE) : 
+                    $cart->pricesUnformatted[$key]['discountedPriceWithoutTax'], 
                     $product->quantity, 
                     $this->getTaxRate($product->product_tax_id['VatTax']),
-                    $product->product_sku
+                    $product->product_sku != Null ? $product->product_sku : 'Product sku'
             );
             $i++;
         }
@@ -481,10 +481,10 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
             $shipment_tax = (100 * $order['details']['BT']->order_shipment_tax) / $order['details']['BT']->order_shipment;
             $orderItems[] = new OrderItem('Frakt', $paymentCurrency->convertCurrencyTo($cart->pricesCurrency, $order['details']['BT']->order_shipment, FALSE), 1, $shipment_tax / 100, 9998);
         }
-        if ($order['details']['BT']->order_payment >> 0) {
+        /*if ($order['details']['BT']->order_payment >> 0) {
             $invoiceFee = (100 * $order['details']['BT']->order_payment_tax) / $order['details']['BT']->order_payment;
             $orderItems[] = new OrderItem('Faktura', $paymentCurrency->convertCurrencyTo($cart->pricesCurrency, $order['details']['BT']->order_payment, FALSE), 1, $invoiceFee / 100, 9999);
-        }
+        }*/
         return $orderItems;
     }
 
