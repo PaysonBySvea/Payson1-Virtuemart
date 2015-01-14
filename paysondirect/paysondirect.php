@@ -8,7 +8,7 @@ if (!class_exists('vmPSPlugin')) {
 
 class plgVmPaymentPaysondirect extends vmPSPlugin {
 
-    public $module_vesion = '1.6';
+    public $module_vesion = '1.7';
 
     function __construct(& $subject, $config) {
 
@@ -117,7 +117,7 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
         $dbValues['tax_id'] = $method->tax_id;
         $this->storePSPluginInternalData($dbValues);
         $modelOrder = VmModel::getModel('orders');
-        $order['order_status'] = 'C';
+        $order['order_status'] = 'P';
         $order['customer_notified'] = 0;
         $order['comments'] = 'Payson Direkt';
         $modelOrder->updateStatusForOneOrder($order['details']['BT']->virtuemart_order_id, $order, true);
@@ -288,7 +288,7 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
         $sgroup = $db->loadAssoc();
         $api = $this->getAPIInstance($method);
         $paymentDetails = $api->paymentDetails(new PaymentDetailsData(JRequest::getString('TOKEN')))->getPaymentDetails();
-        if ($paymentDetails->getStatus() == 'COMPLETED' && $paymentDetails->getType() == 'TRANSFER' && $order['order_status'] != $method->payment_approved_status) {
+        if ($paymentDetails->getStatus() == 'COMPLETED' && $paymentDetails->getType() == 'TRANSFER') {
             $payment_name = $this->renderPluginName($method);
             $modelOrder = VmModel::getModel('orders');
             $order['order_status'] = $method->payment_approved_status;
@@ -392,7 +392,7 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
 												WHERE  `virtuemart_order_id`   =" . $order_number);
                 $database->query();
 
-                if ($response->getPaymentDetails()->getStatus() == 'COMPLETED' && $response->getPaymentDetails()->getType() == 'TRANSFER' && $order['order_status'] != $method->payment_approved_status) {
+                if ($response->getPaymentDetails()->getStatus() == 'COMPLETED' && $response->getPaymentDetails()->getType() == 'TRANSFER') {
                     $payment_name = $this->renderPluginName($method);
                     $modelOrder = VmModel::getModel('orders');
                     $order['order_status'] = $method->payment_approved_status;

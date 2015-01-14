@@ -4,6 +4,11 @@ Requirements:
 
 * Curl
 
+2014-08-25 v1.7
+
+* Bugfixe: with payment status.
+
+-------------------------------------- 
 
 2014-08-25 v1.6
 

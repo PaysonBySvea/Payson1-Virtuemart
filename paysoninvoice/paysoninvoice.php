@@ -8,7 +8,7 @@ if (!class_exists('vmPSPlugin')) {
 
 class plgVmPaymentPaysoninvoice extends vmPSPlugin {
     
-    public $module_vesion = '1.6';
+    public $module_vesion = '1.7';
 
     function __construct(& $subject, $config) {
 
@@ -293,7 +293,7 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
         $api = $this->getAPIInstance($method);
         $paymentDetails = $api->paymentDetails(new PaymentDetailsData(JRequest::getString('TOKEN')))->getPaymentDetails();
         //A check to verify what status was returned
-        if ($paymentDetails->getStatus() == 'PENDING' && $paymentDetails->getType() == 'INVOICE' && $paymentDetails->getInvoiceStatus() == 'ORDERCREATED' && $order['order_status'] != $method->payment_approved_status) {
+        if ($paymentDetails->getType() == 'INVOICE' && $paymentDetails->getInvoiceStatus() == 'ORDERCREATED') {
             $payment_name = $this->renderPluginName($method);
             $modelOrder = VmModel::getModel('orders');
             $order['order_status'] = $method->payment_approved_status;
@@ -404,7 +404,7 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
 												WHERE  `virtuemart_order_id`   =" . $order_number);
                 $database->query();
 
-                if ($response->getPaymentDetails()->getStatus() == 'COMPLETED' /*&& $response->getPaymentDetails()->getType() == 'TRANSFER'*/ && $order['order_status'] != $method->payment_approved_status) {
+                if ($paymentDetails->getType() == 'INVOICE' && $paymentDetails->getInvoiceStatus() == 'ORDERCREATED') {
                     $payment_name = $this->renderPluginName($method);
                     $modelOrder = VmModel::getModel('orders');
                     $order['order_status'] = $method->payment_approved_status;
