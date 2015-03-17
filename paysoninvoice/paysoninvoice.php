@@ -8,7 +8,7 @@ if (!class_exists('vmPSPlugin')) {
 
 class plgVmPaymentPaysoninvoice extends vmPSPlugin {
     
-    public $module_vesion = '1.7';
+    public $module_vesion = '1.8';
 
     function __construct(& $subject, $config) {
 
@@ -95,7 +95,8 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
                         '&pm=' . $order['details']['BT']->virtuemart_paymentmethod_id);
         $return_url = JROUTE::_(JURI::root() . 'index.php?option=com_virtuemart&view=pluginresponse&task=pluginresponsereceived&on=' . $order['details']['BT']->virtuemart_order_id .
                         '&pm=' . $order['details']['BT']->virtuemart_paymentmethod_id);
-        $cancel_url = JROUTE::_(JURI::root() . 'index.php?option=com_virtuemart&view=pluginresponse&task=pluginUserPaymentCancel&on=' . $order['details']['BT']->virtuemart_order_id);        
+        $cancel_url = JROUTE::_(JURI::root() . 'index.php?option=com_virtuemart&view=pluginresponse&task=pluginUserPaymentCancel&on=' . $order['details']['BT']->virtuemart_order_id .
+                        '&pm=' . $order['details']['BT']->virtuemart_paymentmethod_id);
         $this->paysonApi(
                 $method, $totalInPaymentCurrency, $this->currencyPaysoninvoice($currencyToPayson->currency_code_3), $this->languagePaysoninvoice($langCode[0]), $user_billing_info, $user_shipping_info, $return_url, $ipn_url, $cancel_url, 
                 $order['details']['BT']->virtuemart_order_id, $this->setOrderItems($cart, $order), /* $shipment_info */  $order['details']['BT']->order_payment+$order['details']['BT']->order_payment_tax);
@@ -451,10 +452,37 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
                     }
         return $ProductTax;
     }
-            function plgVmOnUserPaymentCancel() {
+	
+    function plgVmOnUserPaymentCancel() {
+        if (!class_exists('VirtueMartCart')) {
+            require(JPATH_VM_SITE . DS . 'helpers' . DS . 'cart.php');
+        }
+        if (!class_exists('shopFunctionsF')) {
+            require(JPATH_VM_SITE . DS . 'helpers' . DS . 'shopfunctionsf.php');
+        }
         if (!class_exists('VirtueMartModelOrders')) {
             require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'orders.php');
         }
+
+        $virtuemart_paymentmethod_id = JRequest::getInt('pm', 0);
+        $order_number = JRequest::getString('on', 0);
+
+        // the payment itself should send the parameter needed.
+        if (!($method = $this->getVmPluginMethod($virtuemart_paymentmethod_id))) {
+            return NULL;
+        } // Another method was selected, do nothing
+
+        if (!$this->selectedThisElement($method->payment_element)) {
+            return NULL;
+        }
+
+
+        $payment_name = $this->renderPluginName($method);
+        $modelOrder = VmModel::getModel('orders');
+        $order['order_status'] = 'X';
+        $order['customer_notified'] = 0;
+        $order['comments'] = 'Cancel payment';
+        $modelOrder->updateStatusForOneOrder($order_number, $order, TRUE);
     }
 
     function setOrderItems($cart, $order) {
