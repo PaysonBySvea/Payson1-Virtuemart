@@ -320,7 +320,7 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
         $api = $this->getAPIInstance($method);
 
         if ($method->sandbox) {
-            $receiver = new Receiver('testagent-1@payson.se', $amount);
+            $receiver = new Receiver('testagent-checkout2@payson.se', $amount);
         } else {
             $receiver = new Receiver(trim($method->seller_email), $amount);
         }
@@ -419,7 +419,7 @@ class plgVmPaymentPaysondirect extends vmPSPlugin {
         require_once (JPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'paysondirect' . DS . 'payson' . DS . 'paysonapi.php');
 
         if ($method->sandbox) {
-            $credentials = new PaysonCredentials(1, 'fddb19ac-7470-42b6-a91d-072cb1495f0a', null, 'payson_virtuemart|' . $this->module_vesion . '|' . VmConfig::getInstalledVersion());
+            $credentials = new PaysonCredentials(4, '2acab30d-fe50-426f-90d7-8c60a7eb31d4', null, 'payson_virtuemart|' . $this->module_vesion . '|' . VmConfig::getInstalledVersion());
         } else {
             $credentials = new PaysonCredentials(trim($method->agent_id), trim($method->md5_key), null, 'payson_virtuemart|' . $this->module_vesion . '|' . VmConfig::getInstalledVersion());
         }
