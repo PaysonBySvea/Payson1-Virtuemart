@@ -8,7 +8,7 @@ if (!class_exists('vmPSPlugin')) {
 
 class plgVmPaymentPaysoninvoice extends vmPSPlugin {
     
-    public $module_vesion = '1.8';
+    public $module_vesion = '1.9';
 
     function __construct(& $subject, $config) {
 
@@ -488,6 +488,7 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
     function setOrderItems($cart, $order) {
 
         require_once (JPATH_ROOT . DS . 'plugins' . DS . 'vmpayment' . DS . 'paysondirect' . DS . 'payson' . DS . 'paysonapi.php');
+        $prices = $cart->pricesUnformatted;
         
         $paymentCurrency = CurrencyDisplay::getInstance();
         $orderItems = array();  
@@ -499,15 +500,32 @@ class plgVmPaymentPaysoninvoice extends vmPSPlugin {
                     $cart->pricesUnformatted[$key]['discountedPriceWithoutTax'], FALSE) : 
                     $cart->pricesUnformatted[$key]['discountedPriceWithoutTax'], 
                     $product->quantity, 
-                    $this->getTaxRate($product->product_tax_id['VatTax']),
+                    $prices[$key]['VatTax'][$order>product_tax_id]['1']/100,
                     $product->product_sku != Null ? $product->product_sku : 'Product sku'
             );
             $i++;
         }
 
+        //Shipping
+        require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'shipmentmethod.php');
+        $vmms = new VirtueMartModelShipmentmethod();
+        $shipmentInfo = $vmms->getShipments();
+
+        foreach($shipmentInfo as $skey => $svalue){
+                if($svalue->virtuemart_shipmentmethod_id == $cart->virtuemart_shipmentmethod_id){
+                        $shipmentData = array();
+                        foreach (explode("|", $svalue->shipment_params) as $line) {
+                                list($key, $value) = explode('=', $line, 2);
+                                $shipmentData[$key] = str_replace('"','',$value);
+                        }
+                        $shipmentTaxId = $shipmentData['tax_id'];
+                        $shipmentTax = sprintf('%1.2f',$cart->cartData['VatTax'][$shipmentTaxId]['calc_value']);
+                }
+        }
+
+                    
         if ($order['details']['BT']->order_shipment >> 0) {
-            $shipment_tax = (100 * $order['details']['BT']->order_shipment_tax) / $order['details']['BT']->order_shipment;
-            $orderItems[] = new OrderItem('Frakt', $paymentCurrency->convertCurrencyTo($cart->pricesCurrency, $order['details']['BT']->order_shipment, FALSE), 1, $shipment_tax / 100, 9998);
+            $orderItems[] = new OrderItem('Frakt', $paymentCurrency->convertCurrencyTo($cart->pricesCurrency, $order['details']['BT']->order_shipment, FALSE), 1, $shipmentTax / 100, 9998);
         }
         /*if ($order['details']['BT']->order_payment >> 0) {
             $invoiceFee = (100 * $order['details']['BT']->order_payment_tax) / $order['details']['BT']->order_payment;

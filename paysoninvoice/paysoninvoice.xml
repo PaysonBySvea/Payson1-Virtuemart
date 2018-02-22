@@ -47,7 +47,6 @@
 	<param name="min_amount" type="text"  label="VMPAYMENT_PAYSONINVOICE_MIN_AMOUNT" description="VMPAYMENT_PAYSONINVOICE_MIN_AMOUNT_EXPLAIN" />
 	<param name="max_amount" type="text"  label="VMPAYMENT_PAYSONINVOICE_MAX_AMOUNT" description="VMPAYMENT_PAYSONINVOICE_MAX_AMOUNT_EXPLAIN" />
 	<param name="cost_per_transaction" type="text"  label="VMPAYMENT_PAYSONINVOICE_COST_PER_TRANSACTION" description="VMPAYMENT_PAYSONINVOICE_COST_PER_TRANSACTION_EXPLAIN" />
-	<param name="cost_percent_total" type="vmtaxes" scope="com_virtuemart"  label="VMPAYMENT_PAYSONINVOICE_TAX" description="VMPAYMENT_PAYSONINVOICE_TAX_EXPLAIN" />
 	<param name="payment_info" type="textarea" cols="60" rows="30" default="add a message to display with the order" label="VMPAYMENT_PAYSONINVOICE_PAYMENTINFO" description="VMPAYMENT_PAYSONINVOICE_PAYMENTINFO_EXPLAIN" />
 
 
